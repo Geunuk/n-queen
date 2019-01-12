@@ -47,13 +47,16 @@ def select_variable(lookup, assigned_var):
     min_var_list = []
     min_cnt = N
 
+    # Find variables that have min number of values
     for var, values in enumerate(lookup):
         if var not in assigned_var:
-            if len(values) == min_cnt:
+            if min_cnt == len(values):
                 min_var_list.append(var)
-            elif len(values) < min_cnt:
+            elif min_cnt > len(values):
+                min_cnt = len(values)
                 min_var_list = [var]
-
+                
+    # Choose variable from min_var_list
     mid = (N-1)/2
     for i in range(len(min_var_list)-1):
         d1 = min_var_list[i]-mid
@@ -75,7 +78,7 @@ def select_variable(lookup, assigned_var):
 
 def select_value(lookup, assigned_var, var, visited):
     min_cnt = (len(lookup))**2
-    same_cnt_list = []
+    min_cnt_list = []
 
     for val in lookup[var]:
         if visited[var][val] == 1:
@@ -83,13 +86,13 @@ def select_value(lookup, assigned_var, var, visited):
         elim_idx = find_elimination(lookup, var, val)
         cnt = len(elim_idx)
 
-        if cnt == min_cnt:
-            same_cnt_list.append((val, elim_idx))
-        elif cnt < min_cnt:
+        if min_cnt == cnt:
+            min_cnt_list.append((val, elim_idx))
+        elif min_cnt > cnt:
             min_cnt = cnt
-            same_cnt_list = [(val, elim_idx)]
+            min_cnt_list = [(val, elim_idx)]
 
-    return random.choice(same_cnt_list)
+    return random.choice(min_cnt_list)
     
 def backtracking(N):
     lookup = [set(range(N)) for _ in range(N)]
@@ -112,7 +115,7 @@ def backtracking(N):
         if step == 1:
             start_var = var
 
-        # backtrack when no possible values or there were values but all visited
+        # backtrack when no possible values or values exist but all visited
         if len(lookup[var]) == 0 or all([visited[var][val] for val in lookup[var]]):
             back = True
 
@@ -126,7 +129,7 @@ def backtracking(N):
             #print("back to var = {} val = {}".format(canceled_var, canceled_val))
             if canceled_var == start_var and all(visited[start_var]):
                 print("FAIL")
-                return step, None
+                return None
             else:
                 continue
 
@@ -145,7 +148,9 @@ def backtracking(N):
     result = [0]*N
     for var, val in list(zip(assigned_var, assigned_val)):
         result[var] = val
-    return step, result
+    s = nqueen.State(N, result)
+    s.summary = {"Step" : step}
+    return s
 
 def print_lookup(lookup):
     print("lookup:")
@@ -160,11 +165,12 @@ def test(N, times):
     return total_step/times
 
 if __name__ == "__main__":
-    """
+    
     N = int(input("How big is your puzzle? : "))
     step, coord = backtracking(N)
     print("step:", step)
     result = nqueen.State(N, coord)
     result.print_board()
-    """
-    print(test(10, 20))
+    
+    
+    #print(test(10, 20))

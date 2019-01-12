@@ -32,19 +32,21 @@ def hill_climb(N):
     s = make_puzzle(N)
     ran_cnt = 1
     if s.value == 0:
-        return s.step, ran_cnt, s
+        s.summary = {"Total step": s.step, "Random initialize": ran_cnt}
+        return s
 
     for i in range(math.factorial(N)):
         local_min = find_local_min(s)
         total_step += local_min.step
         if local_min.value == 0:
-            return total_step, ran_cnt, local_min
+            local_min.summary = {"Total step": total_step, "Random initialize": ran_cnt}
+            return local_min
 
         s = make_puzzle(s.N)
         ran_cnt += 1
     else:
         print("FAIL")
-        return step, ran_cnt, None
+        return None
 
 def test(times):
     N = int(input("How big is your puzzle? : "))

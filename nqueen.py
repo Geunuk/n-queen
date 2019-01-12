@@ -7,6 +7,11 @@ class State():
         self.value = State.count_kill_total(self.coord, self.N)
         #self.value = -self.kill_cnt
         self.step = step
+        self.summary = None
+    
+    def print_result(self):
+        for feature, value in self.summary.items():
+            print(feature, " : ", value)
 
     def print_board(self):
         y = [[] for i in range(self.N)]
@@ -15,12 +20,16 @@ class State():
                 if self.coord[i] == j:
                     y[j].append(i)
 
+        print(" "+"-"*(2*self.N+1)+" ")
         for i in range(self.N):
             line = list("X"*self.N)
             for j in y[i]:
                 line[j] = "Q"
+            line.insert(0, "|")
+            line.append("|")
             print(' '.join(line))
-
+        print(" "+"-"*(2*self.N+1)+" ")
+        
     @staticmethod
     def count_kill_total(coord, N):
         result = 0
@@ -80,6 +89,7 @@ def make_puzzle(N):
     return s
 
 if __name__ == "__main__":
+    """
     N = int(input("How big is your puzzle? : "))
     s = make_puzzle(N)
     s =State(N,[3,0,2,3])
@@ -89,3 +99,5 @@ if __name__ == "__main__":
     #print(State.count_kill_solo(s.coord, 1, N))
     #print(State.count_kill_solo(s.coord, 2, N))
     print(State.count_kill_solo(s.coord, 3, N))
+    """
+    print_board([2,1,3,0])

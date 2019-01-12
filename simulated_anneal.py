@@ -39,7 +39,7 @@ def print_plot(e_trace, time_trace, kill_trace, max_time):
 
         plt.show()
 
-def simulated_anneal(s, max_time, print_mode=True):
+def simulated_annealing(s, max_time, print_mode=True):
     time = 0
     delta_cnt = 0
     avg_delta = 0
@@ -96,8 +96,8 @@ def tester(times, max_time):
 if __name__ == "__main__":
     N = int(input("How big is your puzzle? : "))
     s = make_puzzle(N)
-    ressult = simulated_anneal(s, 200)
+    ressult = simulated_annealing(s, 200)
     
     #s = make_puzzle()
-    #ressult = simulated_anneal(s, 1000)
+    #ressult = simulated_annealing(s, 1000)
     #tester(100, 10000)
