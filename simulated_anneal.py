@@ -22,7 +22,7 @@ def probability(delta, avg_delta, time, max_time):
     a = (max_time)/math.log(0.001)
     return math.e**(time/a)
 
-def print_plot(e_trace, time_trace, kill_trace, max_time):
+def print_plot(e_trace, time_trace, attack_trace, max_time):
         plt.subplot(211)
         plt.plot(time_trace, e_trace,'r--')
         plt.axis([1,max_time,0,100])
@@ -31,7 +31,7 @@ def print_plot(e_trace, time_trace, kill_trace, max_time):
         plt.ylabel('Probability')
 
         plt.subplot(212)
-        plt.plot(list(range(1, max_time+1)), kill_trace,'b--')
+        plt.plot(list(range(1, max_time+1)), attack_trace,'b--')
         plt.axis([1,max_time,0,N*(N-1)//2])
         plt.title('Kill Count')
         plt.xlabel('Time')
@@ -46,16 +46,16 @@ def simulated_annealing(s, max_time, print_mode=True):
 
     e_trace = []
     time_trace = []
-    kill_trace = []
+    attack_trace = []
 
     while True:
         time += 1
-        kill_trace.append(s.kill_cnt)
+        attack_trace.append(s.attack_cnt)
 
         if time == max_time:
-            print("time:", time, "kill:", s.kill_cnt)
+            print("time:", time, "attack:", s.attack_cnt)
             if print_mode:
-                print_plot(e_trace, time_trace, kill_trace, max_time)
+                print_plot(e_trace, time_trace, attack_trace, max_time)
             return x
 
         successor = random_successor(s)
@@ -86,8 +86,8 @@ def tester(times, max_time):
         cnt += 1
         s = make_puzzle()
         result = simulated_anneal(s, max_time, False)
-        #print(result.kill_cnt)
-        if result.kill_cnt == 0:
+        #print(result.attack_cnt)
+        if result.attack_cnt == 0:
             success += 1
     success_rate = success*100/cnt
     print("[{}] times:\nMax time = {}\tSuccess rate = {}".format(
@@ -97,7 +97,3 @@ if __name__ == "__main__":
     N = int(input("How big is your puzzle? : "))
     s = make_puzzle(N)
     ressult = simulated_annealing(s, 200)
-    
-    #s = make_puzzle()
-    #ressult = simulated_annealing(s, 1000)
-    #tester(100, 10000)

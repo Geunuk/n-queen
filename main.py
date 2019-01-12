@@ -1,16 +1,17 @@
 import argparse
 import sys
+
 from hill_climb import hill_climb 
 from backtracking import backtracking
+from min_conflict import min_conflict
 
-fun_dic = {"back":backtracking, "hill":hill_climb}
-#fun_dic = {"min":min_conflict, "back":backtracking, "hill":hill_climb, "simul":simulated_annealng}
+fun_dic = {"min":min_conflict, "back":backtracking, "hill":hill_climb}
 
 def handle_args():
     state, fun = None, None
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('alg' ,metavar='alg',type=str, help="choose algorithm between 'min', back', 'hill' and 'simul'")
+    parser.add_argument('alg' ,metavar='alg',type=str, help="choose algorithm between 'min', 'back','hill' and 'simul'")
     parser.add_argument('N', metavar='N', type=int, help='row and column size of the chess board')
     parser.add_argument('-p', '--print', action='store_true', help="print chess board of result")
    
@@ -18,6 +19,8 @@ def handle_args():
     args = parser.parse_args()
 
     alg_name = args.alg
+    if alg_name == "simul":
+        parser.error("'simul' is under development. Choose other algorithm.")
     if alg_name in fun_dic.keys():
         fun = fun_dic[alg_name]
     return args, fun, args.N
@@ -77,8 +80,11 @@ def main():
     args, fun, N = handle_args()
 
     result = fun(N)
-    result.print_board()
-    result.print_result()
+    if result != None:
+        result.print_board()
+        result.print_summary()
+    else:
+        print("FAIL")
 
 if __name__ == "__main__":
     main()

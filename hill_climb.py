@@ -2,8 +2,8 @@ import math
 from nqueen import State, make_puzzle
 
 def find_local_min(s):
-    N = s.N
     step = 0
+    N = s.N
     base_val = s.value
     base_coord = s.coord[:]
 
@@ -14,7 +14,7 @@ def find_local_min(s):
             for j in range(s.N):
                 tmp_coord = base_coord[:]
                 tmp_coord[i] = j
-                tmp_val = State.count_kill_total(tmp_coord, N)
+                tmp_val = State.count_attack_total(tmp_coord, N)
                 if min_val > tmp_val:
                     min_val = tmp_val
                     min_coord = tmp_coord[:]
@@ -45,14 +45,11 @@ def hill_climb(N):
         s = make_puzzle(s.N)
         ran_cnt += 1
     else:
-        print("FAIL")
         return None
 
-def test(times):
-    N = int(input("How big is your puzzle? : "))
+def test(N, times):
     total_step, ran_cnt, avg_step = 0, 0, 0
     for i in range(times):
-        s = make_puzzle(N)
         part_total_step, part_ran_cnt, part_avg_step = hill_climb(s)
         total_step += part_total_step
         ran_cnt += part_ran_cnt
@@ -68,8 +65,8 @@ def test(times):
     
 if __name__ == "__main__":
     N = int(input("How big is your puzzle? : "))
-    total_step, ran_cnt, s = hill_climb(N)
+    s = hill_climb(N)
     s.print_board()
-    print("ran_cnt:", ran_cnt, " total_step:", total_step, " avg_step:", total_step/ran_cnt)
+    s.print_summary()
 
     #test(100)

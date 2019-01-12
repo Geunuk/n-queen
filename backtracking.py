@@ -126,9 +126,7 @@ def backtracking(N):
             elim_idx = elimination_trace.pop()
             restore_value(lookup, elim_idx)
 
-            #print("back to var = {} val = {}".format(canceled_var, canceled_val))
             if canceled_var == start_var and all(visited[start_var]):
-                print("FAIL")
                 return None
             else:
                 continue
@@ -140,14 +138,13 @@ def backtracking(N):
         assigned_val.append(val)
         elimination_trace.append(elim_idx)
         eliminate_value(lookup, elim_idx)
-
-        #print("select var = {} val = {}".format(var, val))
     
     assert(len(assigned_var) == N)
 
     result = [0]*N
     for var, val in list(zip(assigned_var, assigned_val)):
         result[var] = val
+
     s = nqueen.State(N, result)
     s.summary = {"Step" : step}
     return s
@@ -165,12 +162,7 @@ def test(N, times):
     return total_step/times
 
 if __name__ == "__main__":
-    
     N = int(input("How big is your puzzle? : "))
-    step, coord = backtracking(N)
-    print("step:", step)
-    result = nqueen.State(N, coord)
-    result.print_board()
-    
-    
-    #print(test(10, 20))
+    s = backtracking(N)
+    s.print_board()
+    s.print_summary()
