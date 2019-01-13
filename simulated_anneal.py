@@ -39,7 +39,7 @@ def print_plot(e_trace, time_trace, attack_trace, max_time):
 
         plt.show()
 
-def simulated_annealing(s, max_time, print_mode=True):
+def simulated_annealing(s, max_time, print_mode=True, return_dict):
     time = 0
     delta_cnt = 0
     avg_delta = 0
@@ -94,6 +94,7 @@ def tester(times, max_time):
           times,max_time,success_rate))
 
 if __name__ == "__main__":
-    N = int(input("How big is your puzzle? : "))
+    import sys
+    N = int(sys.argv[1])
     s = make_puzzle(N)
     ressult = simulated_annealing(s, 200)

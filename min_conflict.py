@@ -61,32 +61,33 @@ def total_collisions(queens, i):
 
     return neg_collisions + pos_collisions
 
-def min_conflict(N):
+def min_conflict(N, return_dict):
+    ran_init_cnt = 0
+    total_step = 0
+
     result = None
-    i = 0
     while result == None:
-        i += 1
-        print("iter :", i)
-        queens, k = initial_search(N)   # Number of Leftover queens
-        print("k :", k) 
-        result = final_search(queens, N, k)
-        print(result)
+        ran_init_cnt += 1
+        queens, k, initial_step = initial_search(N)   # Number of Leftover queens
+        result, final_step = final_search(queens, N, k)
+    
+        total_step += initial_step + final_step
 
     s = nqueen.State(N, result)
-    s.summary = {"Random initialize": i}
+    s.summary = {"Random initialize": ran_init_cnt, "Total step": total_step}
+    return_dict["min"] = s
     return s
 
 def initial_search(N):
-    print("initial search")
     queens = list(range(0, N))
     j = 0
-    print(queens)
+    step = 0
+
     for t in range(0, int(3.08*N)):
+        step += 1
         m = random.randint(j+1, N-1)    # Random integer i from t+1 <= i <= N-1
-        print("t", t,"m",m)
         swap(queens, j, m)
         if partial_collisions(queens, j) == 0:
-            print("queens :", queens, " t :", t, " m : ", m, " j : ", j)
             j += 1
         else:
             swap(queens, j, m)
@@ -94,28 +95,52 @@ def initial_search(N):
         if j == N-1:
             break
     
-    return queens, N-j+1
+    return queens, N-j+1, step
 
 def final_search(queens, N, k):
-    print("final search")
-    for t1 in range(N-k+1, N):
-        print("t1 : ", t1)
-        if total_collisions(queens, t1) > 0:
-            flag = True
-            while flag:
-                t2 = random.randint(0, N-1)
-                while t1 == t2:
-                    t2 = random.randint(0, N-1)
+    if N < 200:
+        step = 0
+        for t1 in range(N-k+1, N):
+            if total_collisions(queens, t1) > 0:
+                for t2 in range(N):
+                    if t2 == t1:
+                        continue
 
-                swap(queens, t1, t2)
-                if total_collisions(queens, t1) > 0 or total_collisions(queens, t2) > 0:
+                    step += 1
                     swap(queens, t1, t2)
-                    flag = False
-                else:
-                    flag = True
-    if all([total_collisions(queens, i) == 0 for i in range(N)]):
-        return queens
+                    if total_collisions(queens, t1) > 0 or total_collisions(queens, t2) > 0:
+                        swap(queens, t1, t2)
+                    else:
+                        break
     else:
-        return None
+        step = 0
+        for t1 in range(N-k+1, N):
+            if step >= 7000:
+                break
+            if total_collisions(queens, t1) > 0:
+                flag = True
+                while flag and step <= 7000:
+                    t2 = random.randint(0, N-1)
+                    while t1 == t2:
+                        t2 = random.randint(0, N-1)
+                           
+                    step += 1
+
+                    swap(queens, t1, t2)
+                    if total_collisions(queens, t1) > 0 or total_collisions(queens, t2) > 0:
+                        swap(queens, t1, t2)
+                        flag = True
+                    else:
+                        flag = False
+  
+    if all([total_collisions(queens, i) == 0 for i in range(N)]):
+        return queens, step
+    else:
+        return None, step
+
 if __name__ == "__main__":
-    min_conflict(30)
+    import sys
+    N = int(sys.argv[1])
+    s = min_conflict(N, {})
+    s.print_board()
+    s.print_summary()

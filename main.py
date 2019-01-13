@@ -1,5 +1,7 @@
 import argparse
 import sys
+import time
+import multiprocessing
 
 from hill_climb import hill_climb 
 from backtracking import backtracking
@@ -13,7 +15,7 @@ def handle_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('alg' ,metavar='alg',type=str, help="choose algorithm between 'min', 'back','hill' and 'simul'")
     parser.add_argument('N', metavar='N', type=int, help='row and column size of the chess board')
-    parser.add_argument('-p', '--print', action='store_true', help="print chess board of result")
+    parser.add_argument('-s', '--short', action='store_true', help="short version. turn off chess board printingt")
    
 
     args = parser.parse_args()
@@ -24,67 +26,40 @@ def handle_args():
     if alg_name in fun_dic.keys():
         fun = fun_dic[alg_name]
     return args, fun, args.N
-"""
-def run(init_state, fun):
-    print("Init :")
-    State.print_state(init_state.index)
-    print()
 
-    time, route = fun(init_state)
-    print("Changed :")
-    State.print_state(init_state.answer)
-    print()
+def spinning_cursor():
+    while True:
+        for cursor in '|/-\\':
+            yield cursor
 
-    print("Time    :", time)
-    print("Length  :", len(route))
-    print("Route   :")
-    print()
-
-    print("   |  0  1  2  3  4  5  6  7  8  9 ")
-    print("-----------------------------------")
-    for i, r in enumerate(route):
-        if i%10 == 0:
-            print('{:2} | '.format(i), end=' ')
-        print(r, end='  ')
-
-        if i%10 == 9:
-            print()
-    print()
-
-def compare(init_state):
-    print("Init       :")
-    State.print_state(init_state.index)
-    print()
-
-    time_list = []
-    length_list = []
-
-    for fun in fun_dic.values():
-        time, route = fun(init_state)
-        time_list.append(str(time))
-        length_list.append(str(len(route)))
-
-    fun_list = ["{:^5}".format(x) for x in fun_dic.keys()]
-    time_list = ["{:^5}".format(x) for x in time_list]
-    length_list = ["{:^5}".format(x) for x in length_list]
-
-    print("Comparison :")
-    print()
-    print("       | " + '  '.join(fun_list))
-    print("-"*35)
-    print("Time   | " + '  '.join(time_list))
-    print("Length | " + '  '.join(length_list))
-"""
+def print_waiting_msg(jobs):
+    spinner = spinning_cursor()
+    print("Calculating...... ", end='')
+    while any([p.is_alive() for p in jobs]):
+        sys.stdout.write(next(spinner))
+        sys.stdout.flush()
+        time.sleep(0.1)
+        sys.stdout.write('\b')
+    print("\n")
 
 def main():
     args, fun, N = handle_args()
 
-    result = fun(N)
-    if result != None:
-        result.print_board()
-        result.print_summary()
-    else:
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+
+    p = multiprocessing.Process(target=fun, args=(N,return_dict))
+    p.start()
+    print_waiting_msg([p])
+
+    result = return_dict.values()[0]
+
+    if result == None:
         print("FAIL")
+        return
+    elif not args.short:
+        result.print_board()
+    result.print_summary()
 
 if __name__ == "__main__":
     main()

@@ -26,7 +26,7 @@ def find_local_min(s):
         else:
             return State(N, min_coord, step)
 
-def hill_climb(N):
+def hill_climb(N, result_dict):
     total_step = 0
 
     s = make_puzzle(N)
@@ -40,33 +40,18 @@ def hill_climb(N):
         total_step += local_min.step
         if local_min.value == 0:
             local_min.summary = {"Total step": total_step, "Random initialize": ran_cnt}
+            result_dict["hill"] = local_min
             return local_min
 
         s = make_puzzle(s.N)
         ran_cnt += 1
     else:
+        result_dict["hill"] = None
         return None
 
-def test(N, times):
-    total_step, ran_cnt, avg_step = 0, 0, 0
-    for i in range(times):
-        part_total_step, part_ran_cnt, part_avg_step = hill_climb(s)
-        total_step += part_total_step
-        ran_cnt += part_ran_cnt
-        avg_step += part_avg_step
-
-    total_step /= times
-    ran_cnt /= times
-    avg_step /= times
-
-    print("[{}] times:\navg cnt: {}\t".format(times, ran_cnt), end='')
-    print("total_step: {}\tavg_step: {}".format(total_step, avg_step))
-
-    
 if __name__ == "__main__":
-    N = int(input("How big is your puzzle? : "))
-    s = hill_climb(N)
+    import sys
+    N = int(sys.argv[1])
+    s = hill_climb(N, {})
     s.print_board()
     s.print_summary()
-
-    #test(100)

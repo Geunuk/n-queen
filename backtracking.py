@@ -94,7 +94,7 @@ def select_value(lookup, assigned_var, var, visited):
 
     return random.choice(min_cnt_list)
     
-def backtracking(N):
+def backtracking(N, return_dict):
     lookup = [set(range(N)) for _ in range(N)]
     visited = [[0]*N for _ in range(N)]
     assigned_var = []
@@ -147,6 +147,7 @@ def backtracking(N):
 
     s = nqueen.State(N, result)
     s.summary = {"Step" : step}
+    return_dict["back"] = s
     return s
 
 def print_lookup(lookup):
@@ -162,7 +163,8 @@ def test(N, times):
     return total_step/times
 
 if __name__ == "__main__":
-    N = int(input("How big is your puzzle? : "))
-    s = backtracking(N)
+    import sys
+    N = int(sys.argv[1])
+    s = backtracking(N, {})
     s.print_board()
     s.print_summary()
