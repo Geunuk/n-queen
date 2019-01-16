@@ -13,11 +13,10 @@ def handle_args():
     state, fun = None, None
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('alg' ,metavar='alg',type=str, help="choose algorithm between 'min', 'back','hill' and 'simul'")
+    parser.add_argument('alg' ,metavar='alg',type=str, help="Coose algorithm between 'min', 'back','hill' and 'simul'")
     parser.add_argument('N', metavar='N', type=int, help='row and column size of the chess board')
     parser.add_argument('-s', '--short', action='store_true', help="short version. turn off chess board printingt")
    
-
     args = parser.parse_args()
 
     alg_name = args.alg
@@ -25,6 +24,8 @@ def handle_args():
         parser.error("'simul' is under development. Choose other algorithm.")
     if alg_name in fun_dic.keys():
         fun = fun_dic[alg_name]
+    else:
+        parser.error("Coose algorithm between 'min', 'back','hill' and 'simul'")
     return args, fun, args.N
 
 def spinning_cursor():
