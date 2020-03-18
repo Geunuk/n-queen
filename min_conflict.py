@@ -1,7 +1,5 @@
 import random
 
-import nqueen
-
 def swap(queens, m, n):
     tmp = queens[m]
     queens[m] = queens[n]
@@ -73,11 +71,17 @@ def min_conflict(N, return_dict):
     
         total_step += initial_step + final_step
 
+    summary = {"Random initialize": ran_init_cnt, "Total step": total_step}
+    return_dict["min"]=(result, summary)
+    
+    return result, summary
+    
+    """
     s = nqueen.State(N, result)
     s.summary = {"Random initialize": ran_init_cnt, "Total step": total_step}
     return_dict["min"] = s
     return s
-
+    """
 def initial_search(N):
     queens = list(range(0, N))
     j = 0
@@ -140,7 +144,9 @@ def final_search(queens, N, k):
 
 if __name__ == "__main__":
     import sys
+    from print_util import print_board, print_summary
+
     N = int(sys.argv[1])
-    s = min_conflict(N, {})
-    s.print_board()
-    s.print_summary()
+    coord, summary = min_conflict(N, {})
+    print_board(coord)
+    print_summary(summary)

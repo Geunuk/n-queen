@@ -1,20 +1,21 @@
 import math
-from nqueen import State, make_puzzle
 
-def find_local_min(s):
+from puzzle_util import make_puzzle, count_attack_total
+
+def find_local_min(coord):
     step = 0
-    N = s.N
-    base_val = s.value
-    base_coord = s.coord[:]
+    N = len(coord)
+    base_val = count_attack_total(coord)
+    base_coord = coord[:]
 
     while True:
         min_val = base_val
         min_coord = base_coord[:]
-        for i in range(s.N):
-            for j in range(s.N):
+        for i in range(N):
+            for j in range(N):
                 tmp_coord = base_coord[:]
                 tmp_coord[i] = j
-                tmp_val = State.count_attack_total(tmp_coord, N)
+                tmp_val = count_attack_total(tmp_coord)
                 if min_val > tmp_val:
                     min_val = tmp_val
                     min_coord = tmp_coord[:]
@@ -24,34 +25,38 @@ def find_local_min(s):
             base_val = min_val
             base_coord = min_coord[:]
         else:
-            return State(N, min_coord, step)
+            return min_coord, min_val, step
 
-def hill_climb(N, result_dict):
+def hill_climb(N, return_dict):
     total_step = 0
 
-    s = make_puzzle(N)
+    coord = make_puzzle(N)
     ran_cnt = 1
-    if s.value == 0:
-        s.summary = {"Total step": s.step, "Random initialize": ran_cnt}
-        return s
+    if count_attack_total(coord) == 0:
+        summary = {"Total step": 0, "Random initialize": ran_cnt}
+        return_dict["hill"] = (coord, summary)
+        return coord, summary
 
     for i in range(math.factorial(N)):
-        local_min = find_local_min(s)
-        total_step += local_min.step
-        if local_min.value == 0:
-            local_min.summary = {"Total step": total_step, "Random initialize": ran_cnt}
-            result_dict["hill"] = local_min
-            return local_min
+        local_min_coord, local_min_val, step = find_local_min(coord)
+        total_step += step
+        if local_min_val == 0:
+            summary = {"Total step": total_step, "Random initialize": ran_cnt}
+            return_dict["hill"] = (local_min_coord, summary)
+            return local_min_coord, summary
 
-        s = make_puzzle(s.N)
+        coord = make_puzzle(N)
         ran_cnt += 1
     else:
-        result_dict["hill"] = None
-        return None
+        summary = {"Result": "Fail", "Total step": total_step, "Random initialize": ran_cnt}
+        return_dict["hill"] = (None, summary)
+        return None, summary
 
 if __name__ == "__main__":
     import sys
+    from print_util import print_board, print_summary
+    
     N = int(sys.argv[1])
-    s = hill_climb(N, {})
-    s.print_board()
-    s.print_summary()
+    coord, summary = hill_climb(N, {})
+    print_board(coord)
+    print_summary(summary)

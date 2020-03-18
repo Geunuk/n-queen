@@ -1,5 +1,4 @@
 import random
-import nqueen
 
 def eliminate_value(lookup, pos):
     for var, val in pos:
@@ -145,11 +144,11 @@ def backtracking(N, return_dict):
     for var, val in list(zip(assigned_var, assigned_val)):
         result[var] = val
 
-    s = nqueen.State(N, result)
-    s.summary = {"Step" : step}
-    return_dict["back"] = s
-    return s
-
+    summary = {"Step" : step}
+    return_dict["back"] = (result, summary)
+    
+    return result, summary
+    
 def print_lookup(lookup):
     print("lookup:")
     for var, val in enumerate(lookup):
@@ -158,13 +157,15 @@ def print_lookup(lookup):
 def test(N, times):
     total_step = 0
     for i in range(times):
-        step, _ = backtracking(N)
-        total_step += step
+        _, summary = backtracking(N, {})
+        total_step += summary['Step']
     return total_step/times
 
 if __name__ == "__main__":
     import sys
+    from print_util import print_board, print_summary
+
     N = int(sys.argv[1])
-    s = backtracking(N, {})
-    s.print_board()
-    s.print_summary()
+    coord, summary = backtracking(N, {})
+    print_board(coord)
+    print_summary(summary)
