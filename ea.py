@@ -1,6 +1,7 @@
 import numpy as np
 
-from nqueen import State, make_puzzle
+from print_util import print_board, print_summary
+from puzzle_util import count_attack_total
 
 def mutate(individual):
     N = len(individual)
@@ -23,13 +24,16 @@ def EA(puzzle_size, pop_size, mutation_prob, max_gen):
     population = []
     fitnesses = []
     gen_cnt = 0
-
-    print("Gen", gen_cnt)
+    summary = {"Puzzle size": puzzle_size, "Population": pop_size, "Mutation prob": mutation_prob, "Max gen": max_gen}
+    
+    #print("Gen", gen_cnt)
     for i in range(pop_size):
         individual = np.random.permutation(puzzle_size) 
-        fitness = State.count_attack_total(individual, puzzle_size)
+        fitness = count_attack_total(individual)
         if fitness == 0:
-            State(puzzle_size, individual).print_board()
+            summary["Gen"] = gen_cnt
+            print_board(individual)
+            print_summary(summary)
             return
         else:
             population.append(individual)
@@ -37,15 +41,17 @@ def EA(puzzle_size, pop_size, mutation_prob, max_gen):
     
     while gen_cnt <= max_gen:
         gen_cnt += 1
-        print("Gen", gen_cnt)
+        #print("Gen", gen_cnt)
         
         # mutate
         for mutated_idx in np.random.randint(pop_size, size=int(mutation_prob*pop_size)):
             mutated_individual = mutate(population[mutated_idx])
             if mutated_individual != []:
-                fitness = State.count_attack_total(mutated_individual, puzzle_size)
+                fitness = count_attack_total(mutated_individual)
                 if fitness == 0:
-                    State(puzzle_size, mutated_individual).print_board()
+                    summary["Gen"] = gen_cnt
+                    print_board(mutated_individual)
+                    print_summary(summary)
                     return
                 else:
                     population.append(mutated_individual)
@@ -55,6 +61,9 @@ def EA(puzzle_size, pop_size, mutation_prob, max_gen):
         
         population = [population[i] for i in new_idx]
         fitnesses = [fitnesses[i] for i in new_idx]
+    
+    summary["Result"] = "Over max gens"
+    print_summary(summary)
         
 if __name__ == "__main__":
-    EA(13, 1000, 0.8, 10000)
+    EA(15, 1000, 0.8, 10)
