@@ -1,19 +1,21 @@
 import random
 import math
+
 import matplotlib.pyplot as plt
-from nqueen import State, make_puzzle
 
-def random_successor(s):
-    i = random.randint(0,N-1)
-    cur_val = s.coord[i]
+from puzzle_util import make_puzzle, count_attack_total
 
-    successor_coord = s.coord[:]
+def random_successor(coord):
+    N = len(coord)
+    i = random.randint(0, N-1)
+    cur_val = coord[i]
+
+    successor_coord = coord[:]
     candidate = list(range(N))
     candidate.pop(cur_val)
     successor_coord[i] = random.choice(candidate)
-    successor = State(s.N, successor_coord)
-
-    return successor
+    
+    return successor_coord
 
 def probability(delta, avg_delta, time, max_time):
     #avg_delta = -1
@@ -39,8 +41,9 @@ def print_plot(e_trace, time_trace, attack_trace, max_time):
 
         plt.show()
 
-def simulated_annealing(s, max_time, print_mode=True, return_dict):
-    time = 0
+def simulated_annealing(max_time_step, print_mode, return_dict):
+    coord = make_puzzle(N)
+    time_steps = 0
     delta_cnt = 0
     avg_delta = 0
 
@@ -49,43 +52,45 @@ def simulated_annealing(s, max_time, print_mode=True, return_dict):
     attack_trace = []
 
     while True:
-        time += 1
-        attack_trace.append(s.attack_cnt)
+        time_steps += 1
+        value = count_attack_total(coord)
+        attack_trace.append(value)
 
         if time == max_time:
-            print("time:", time, "attack:", s.attack_cnt)
+            print("time:", time, "attack:", value)
             if print_mode:
                 print_plot(e_trace, time_trace, attack_trace, max_time)
-            return x
+            return s
 
-        successor = random_successor(s)
-        delta = successor.value - s.value
+        successor_coord = random_successor(coord)
+        successor_value = count_attack_total(successor_coord)
+        delta = successor_value - value
 
         if delta >= 0:
-            s = successor
+            coord = successor_coord
         else:
             delta_cnt += 1
             avg_delta = (avg_delta*(delta_cnt-1)+ delta)/delta_cnt
             #print(avg_delta)
-            p = probability(delta, avg_delta, time, max_time)
+            p = probability(delta, avg_delta, time_steps, max_time_step)
             e = math.floor(p*100)
 
-            time_trace.append(time)
+            time_trace.append(time_steps)
             e_trace.append(e)
 
             r = random.randint(0,100)
             if r <= e:
-                x = successor
+                s = successor_coord
             else:
                 pass
 
-def tester(times, max_time):
+def tester(times, max_time_step):
     cnt = 0
     success = 0
     for i in range(times):
         cnt += 1
         s = make_puzzle()
-        result = simulated_anneal(s, max_time, False)
+        result = simulated_anneal(s, max_time_step, False)
         #print(result.attack_cnt)
         if result.attack_cnt == 0:
             success += 1
@@ -96,5 +101,5 @@ def tester(times, max_time):
 if __name__ == "__main__":
     import sys
     N = int(sys.argv[1])
-    s = make_puzzle(N)
-    ressult = simulated_annealing(s, 200)
+
+    result = simulated_annealing(2000, True, {})
