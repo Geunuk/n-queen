@@ -3,7 +3,7 @@ def print_summary(summary_dict):
         print(attr, " : ", value)
 
 def print_board(coord):
-    if coord == None:
+    if type(coord) == None:
         print("Caannot print 'None' coordiante")
         return
 
