@@ -6,6 +6,7 @@ import multiprocessing
 from hill_climb import hill_climb 
 from backtracking import backtracking
 from min_conflict import min_conflict
+from print_util import print_board, print_summary
 
 fun_dic = {"min":min_conflict, "back":backtracking, "hill":hill_climb}
 
@@ -46,6 +47,7 @@ def print_waiting_msg(jobs):
 def main():
     args, fun, N = handle_args()
 
+    # use multiprocessing for calculating message
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
 
@@ -53,14 +55,14 @@ def main():
     p.start()
     print_waiting_msg([p])
 
-    result = return_dict.values()[0]
+    coord, summary = return_dict.values()[0]
 
-    if result == None:
+    if coord == None:
         print("FAIL")
         return
     elif not args.short:
-        result.print_board()
-    result.print_summary()
+        print_board(coord)
+    print_summary(summary)
 
 if __name__ == "__main__":
     main()
